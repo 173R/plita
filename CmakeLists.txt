@@ -6,11 +6,19 @@ project(${PROJECT_NAME})
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(COMMON_LIBS)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-#target_link_libraries(${PROJECT_NAME} PRIVATE ${COMMON_LIBS})
+add_subdirectory(lib/glfw)
+add_subdirectory(lib/glm)
+
+set(COMMON_LIBS glfw glm)
+
 include_directories(${PROJECT_NAME}
 	${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/lib/glfw/include
+  ${PROJECT_SOURCE_DIR}/lib/glm
 )
 
 set(SRC_FILES
@@ -21,6 +29,8 @@ set(SRC_FILES
 set(RESOURCE_FILES)
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${RESOURCE_FILES})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE ${COMMON_LIBS})
 
 if(WIN32)
   set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
