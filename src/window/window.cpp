@@ -6,8 +6,8 @@ const std::string GLFW_INITIALIZATION_ERROR_MESSAGE = "WINDOW::CONSTRUCTOR: Fail
 const std::string      VULKAN_SUPPORT_ERROR_MESSAGE = "WINDOW::CONSTRUCTOR: GLFW failed to find Vulkan support.";
 const std::string     WINDOW_CREATION_ERROR_MESSAGE = "WINDOW::CONSTRUCTOR: Failed to create window with title: ";
 
-Window::Window(const uint16_t height, const uint16_t width, const std::string title)
-  : height_(height), width_(width), title_(title) {
+Window::Window(const uint16_t width, const uint16_t height, const std::string title)
+  : width_(width), height_(height), title_(title) {
   if (glfwInit() == GLFW_FALSE) {
     throw std::runtime_error(GLFW_INITIALIZATION_ERROR_MESSAGE);
   }
@@ -24,12 +24,10 @@ Window::Window(const uint16_t height, const uint16_t width, const std::string ti
   }
 }
 
-Window::~Window() {
-  glfwDestroyWindow(window_);
-  // !!!TODO: move to application destructor!!!
-  glfwTerminate();
+bool Window::shouldClose() const {
+  return glfwWindowShouldClose(window_) == GLFW_TRUE;
 }
 
-bool Window::shouldClose() {
-  return glfwWindowShouldClose(window_) == GLFW_TRUE;
+Window::~Window() {
+  glfwDestroyWindow(window_);
 }

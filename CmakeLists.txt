@@ -17,14 +17,16 @@ set(VULKAN_SDK_PATH C:/VulkanSDK/1.2.198.1)
 set(COMMON_LIBS glfw glm ${VULKAN_SDK_PATH}/Lib/vulkan-1.lib)
 
 include_directories(${PROJECT_NAME}
-	${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/include
   ${PROJECT_SOURCE_DIR}/lib/glfw/include
   ${PROJECT_SOURCE_DIR}/lib/glm
   ${VULKAN_SDK_PATH}/Include
 )
 
 set(SRC_FILES
-  src/main.cpp
+  src/application.cpp
+  src/engine/engine.cpp
+  src/engine/event_processor.cpp
   src/window/window.cpp
 )
 

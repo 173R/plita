@@ -1,10 +1,16 @@
+#include "engine/engine.hpp"
+
 #include <iostream>
 
+// @brief Application entrypoint.
+// 
+// @return Exit code.
 int main() {
-  std::cout << "Hello" << std::endl;
+  Engine* engine = new Engine();
 
   try {
-    //app.run();
+    engine->run();
+    delete engine;
   } catch (const std::exception& e) {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
