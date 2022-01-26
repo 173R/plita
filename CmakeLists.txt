@@ -24,10 +24,9 @@ include_directories(${PROJECT_NAME}
 )
 
 set(SRC_FILES
-  src/application.cpp
-  src/engine/engine.cpp
-  src/engine/event_processor.cpp
-  src/window/window.cpp
+  src/main.cpp
+  src/PlitaRoot.cpp
+  src/PlitaWindow.cpp
 )
 
 set(RESOURCE_FILES)

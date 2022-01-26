@@ -6,7 +6,7 @@
 #include <string>
 
 // Class for window initialization and state.
-class Window {
+class PlitaWindow {
 private:
   // Window height.
   const uint16_t height_;
@@ -23,10 +23,10 @@ public:
   // @param height - Height of window in pixels.
   // @param  width - Width of window in pixels.
   // @param  title - Window title.
-  Window(const uint16_t width, const uint16_t height, const std::string title);
+  PlitaWindow(const uint16_t width, const uint16_t height, const std::string title);
 
   // @brief Destroys the GLFW window.
-  ~Window();
+  ~PlitaWindow();
 
   // @brief Checks if GLFW window should close.
   // 
