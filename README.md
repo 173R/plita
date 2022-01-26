@@ -1,5 +1,5 @@
-# Plita the GAME
-
+# Plita the Engine
+![img.png](img.png)
 ```shell
 git clone --recurse-submodules git@github.com:BlackenedBettencourt/plita.git
 ```
