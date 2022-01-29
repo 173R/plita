@@ -3,13 +3,18 @@
 #include "PlitaWindow.hpp"
 
 class PlitaRoot {
-private:
-  const PlitaWindow* window_;
-
 public:
+  static void initialize();
+  static PlitaWindow& getWindow();
+
+private:
   PlitaRoot();
-
-  void run();
-
   ~PlitaRoot();
+
+  void initWindow(const uint16_t width, const uint16_t height, const std::string title);
+  void destroyWindow();
+
+  static PlitaRoot instance_;
+  
+  PlitaWindow* window_;
 };

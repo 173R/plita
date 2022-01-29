@@ -18,6 +18,7 @@ set(COMMON_LIBS glfw glm ${VULKAN_SDK_PATH}/Lib/vulkan-1.lib)
 
 include_directories(${PROJECT_NAME}
   ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/include/vk
   ${PROJECT_SOURCE_DIR}/lib/glfw/include
   ${PROJECT_SOURCE_DIR}/lib/glm
   ${VULKAN_SDK_PATH}/Include
@@ -27,6 +28,8 @@ set(SRC_FILES
   src/main.cpp
   src/PlitaRoot.cpp
   src/PlitaWindow.cpp
+  src/RenderSystem.cpp
+  src/Vulkan/VulkanInstance.cpp
 )
 
 set(RESOURCE_FILES)
