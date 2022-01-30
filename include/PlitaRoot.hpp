@@ -1,20 +1,23 @@
 #pragma once
 
-#include "PlitaWindow.hpp"
+#include "WindowSystem.hpp"
+#include "RenderSystem.hpp"
+
 
 class PlitaRoot {
 public:
   static void initialize();
-  static PlitaWindow& getWindow();
+  static WindowSystem& getWindow();
 
 private:
   PlitaRoot();
   ~PlitaRoot();
 
-  void initWindow(const uint16_t width, const uint16_t height, const std::string title);
-  void destroyWindow();
+  void initWindow();
+  void initRenderSystem();
 
   static PlitaRoot instance_;
   
-  PlitaWindow* window_;
+  WindowSystem* window_system_;
+  RenderSystem* render_system_;
 };

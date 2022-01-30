@@ -1,27 +1,28 @@
 ﻿#include "PlitaRoot.hpp"
-#include "PlitaWindow.hpp"
 
 PlitaRoot PlitaRoot::instance_;
 
 PlitaRoot::PlitaRoot() {}
 PlitaRoot::~PlitaRoot() {
-  instance_.destroyWindow();
+  delete instance_.window_system_;
+  delete instance_.render_system_;
 }
 
 void PlitaRoot::initialize() {
-  instance_.initWindow(800, 600, "GAME");
+  instance_.initWindow();
+  instance_.initRenderSystem();
 }
 
-PlitaWindow& PlitaRoot::getWindow() {
-  return *instance_.window_;
+WindowSystem& PlitaRoot::getWindow() {
+  return *instance_.window_system_;
 }
 
-void PlitaRoot::initWindow(const uint16_t width, const uint16_t height, const std::string title) {
-  instance_.window_ = new PlitaWindow(width, height, title);
+void PlitaRoot::initWindow() {
+  instance_.window_system_ = new WindowSystem();
+  instance_.window_system_->init("Game", 800, 600);
 }
 
-void PlitaRoot::destroyWindow() {
-  delete instance_.window_;
-};
-
-
+void PlitaRoot::initRenderSystem() {
+  instance_.render_system_ = new RenderSystem();
+  instance_.render_system_->init(instance_.window_system_);
+}

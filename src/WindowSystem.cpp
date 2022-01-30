@@ -1,10 +1,17 @@
-#include "PlitaWindow.hpp"
+#include "WindowSystem.hpp"
 
 #include <stdexcept>
 
-PlitaWindow::PlitaWindow(const uint16_t width, const uint16_t height, const std::string title)
-  : width_(width), height_(height), title_(title) {
+WindowSystem::WindowSystem(): 
+  width_(0), height_(0), title_("Window") {
+}
 
+WindowSystem::~WindowSystem() {
+  glfwDestroyWindow(window_);
+  glfwTerminate();
+}
+
+void WindowSystem::init(const std::string title, const uint16_t width, const uint16_t height) {
   glfwInit();
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
@@ -15,16 +22,11 @@ PlitaWindow::PlitaWindow(const uint16_t width, const uint16_t height, const std:
   }
 }
 
-PlitaWindow::~PlitaWindow() {
-  glfwDestroyWindow(window_);
-  glfwTerminate();
-}
-
-bool PlitaWindow::shouldClose() {
+bool WindowSystem::shouldClose() {
   return glfwWindowShouldClose(window_);
 }
 
-void PlitaWindow::pollEvents() {
+void WindowSystem::pollEvents() {
   glfwPollEvents();
 }
 
