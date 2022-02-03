@@ -14,11 +14,11 @@ public:
 
 private:
   static bool initialised_;
-  WindowSystem* window_system_;
 
   VkInstance vk_instance_;
   VulkanDevice* vk_device_;
   VulkanWindow* vk_window_;
+  WindowSystem* window_system_;
 
   void initVkInstance();
   void initVkDevice();

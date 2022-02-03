@@ -3,7 +3,11 @@
 #include <stdexcept>
 
 WindowSystem::WindowSystem(): 
-  width_(0), height_(0), title_("Window") {
+  width_(0),
+  height_(0), 
+  title_("Window"),
+  window_(nullptr)
+{
 }
 
 WindowSystem::~WindowSystem() {

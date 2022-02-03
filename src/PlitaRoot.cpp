@@ -5,15 +5,18 @@ PlitaRoot PlitaRoot::instance_;
 PlitaRoot::PlitaRoot() {}
 PlitaRoot::~PlitaRoot() {
   delete instance_.window_system_;
+  instance_.window_system_ = nullptr;
+
   delete instance_.render_system_;
+  instance_.render_system_ = nullptr;
 }
 
-void PlitaRoot::initialize() {
+/* static */ void PlitaRoot::initialize() {
   instance_.initWindow();
   instance_.initRenderSystem();
 }
 
-WindowSystem& PlitaRoot::getWindow() {
+/* static */ WindowSystem& PlitaRoot::getWindow() {
   return *instance_.window_system_;
 }
 

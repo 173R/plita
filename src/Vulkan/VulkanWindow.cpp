@@ -17,15 +17,15 @@ void VulkanWindow::createSurface() {
     throw std::runtime_error("failed to create window surface!");
   }
 
-  VkBool32 presentSupport = false;
+  VkBool32 present_support = false;
   vkGetPhysicalDeviceSurfaceSupportKHR(
     vk_device_->physical_device_,
-    vk_device_->queue_indices_.presentFamily.value(),
+    vk_device_->queue_indices_.present_family.value(),
     surface_,
-    &presentSupport
+    &present_support
   );
 
-  if (!presentSupport) {
+  if (!present_support) {
     throw std::runtime_error("Present queue unsupported");
   }
 

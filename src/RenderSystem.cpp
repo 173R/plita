@@ -5,7 +5,12 @@
 
 bool RenderSystem::initialised_ = false;
 
-RenderSystem::RenderSystem() {
+RenderSystem::RenderSystem():
+  vk_instance_(VK_NULL_HANDLE),
+  vk_device_(nullptr),
+  vk_window_(nullptr),
+  window_system_(nullptr)
+{
   /*TODO: другое решение*/
   assert(!initialised_);
   initialised_ = true;
@@ -32,6 +37,10 @@ void RenderSystem::initVkInstance() {
 
 void RenderSystem::initVkDevice() {
   vk_device_ = new VulkanDevice(vk_instance_);
+  std::vector<char *> device_extensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+  };
+  vk_device_->setDeviceExtensions(device_extensions);
   vk_device_->createDevice();
 }
 
