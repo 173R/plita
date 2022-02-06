@@ -2,22 +2,23 @@
 
 VulkanWindow::VulkanWindow():
   surface_(VK_NULL_HANDLE),
-  vk_device_(nullptr),
+  vk_instance_(nullptr),
   window_system_(nullptr)
 {
 
 }
 
 VulkanWindow::~VulkanWindow() {
-  vkDestroySurfaceKHR(vk_device_->instance_, surface_, nullptr);
+  vkDestroySurfaceKHR(vk_instance_, surface_, nullptr);
 }
 
 void VulkanWindow::createSurface() {
-  if (glfwCreateWindowSurface(vk_device_->instance_, window_system_->window_, nullptr, &surface_) != VK_SUCCESS) {
+  if (glfwCreateWindowSurface(vk_instance_, window_system_->window_, nullptr, &surface_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create window surface!");
   }
 
-  VkBool32 present_support = false;
+  /*TODO: Перенести в device*/
+  /*VkBool32 present_support = false;
   vkGetPhysicalDeviceSurfaceSupportKHR(
     vk_device_->physical_device_,
     vk_device_->queue_indices_.present_family.value(),
@@ -27,12 +28,12 @@ void VulkanWindow::createSurface() {
 
   if (!present_support) {
     throw std::runtime_error("Present queue unsupported");
-  }
+  }*/
 
 }
 
-void VulkanWindow::setDevice(VulkanDevice* device) {
-  vk_device_ = device;
+void VulkanWindow::setInstance(const VkInstance& vk_instance) {
+  vk_instance_ = vk_instance;
 }
 
 void VulkanWindow::setWindow(WindowSystem* window_system) {

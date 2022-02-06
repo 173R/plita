@@ -1,7 +1,7 @@
 #pragma once
 
 #include "vulkan/vulkan.h"
-#include "glfw/glfw3.h"
+#include "GLFW/glfw3.h"
 
 #include "VulkanDevice.hpp"
 #include "WindowSystem.hpp"
@@ -12,11 +12,11 @@ public:
   ~VulkanWindow();
 
   void createSurface();
-  void setDevice(VulkanDevice* vk_device);
+  void setInstance(const VkInstance& vk_instance);
   void setWindow(WindowSystem* window_system);
 
-private:
-  VulkanDevice* vk_device_;
-  WindowSystem* window_system_;
   VkSurfaceKHR surface_;
+private:
+  VkInstance vk_instance_;
+  WindowSystem* window_system_;
 };

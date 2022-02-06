@@ -31,6 +31,7 @@ set(SRC_FILES
   src/RenderSystem.cpp
   src/Vulkan/VulkanDevice.cpp
   src/Vulkan/VulkanWindow.cpp
+  src/Vulkan/VulkanSwapChain.cpp
 )
 
 set(RESOURCE_FILES)
