@@ -4,11 +4,12 @@
 
 int main() {
   try {
+    PlitaRoot plita;
+    PlitaRoot::Instance()->initialize();
 
-    PlitaRoot::initialize();
-
-    while (!PlitaRoot::getWindow().shouldClose()) {
-      PlitaRoot::getWindow().pollEvents();
+    while (!WindowSystem::Instance()->shouldClose()) {
+      WindowSystem::Instance()->pollEvents();
+      RenderSystem::Instance()->draw();
     }
 
   } catch (const std::exception& e) {

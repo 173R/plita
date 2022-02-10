@@ -2,10 +2,12 @@
 
 #include "GLFW/glfw3.h"
 
+#include "Singleton.hpp"
+
 #include <cstdint>
 #include <string>
 
-class WindowSystem {
+class WindowSystem: public Singleton<WindowSystem> {
 public:
   const uint16_t height_;
   const uint16_t width_;
@@ -15,7 +17,7 @@ public:
   WindowSystem();
   ~WindowSystem();
 
-  void init(const std::string title, const uint16_t width, const uint16_t height);
+  void init(const std::string& title, uint16_t width, uint16_t height);
   void pollEvents();
   bool shouldClose();
 

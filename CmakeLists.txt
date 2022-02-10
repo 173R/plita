@@ -32,11 +32,11 @@ set(SRC_FILES
   src/Vulkan/VulkanDevice.cpp
   src/Vulkan/VulkanWindow.cpp
   src/Vulkan/VulkanSwapChain.cpp
-)
+  src/Vulkan/VulkanGraphicsPipeline.cpp
+        include/Singleton.hpp)
 
-set(RESOURCE_FILES)
 
-add_executable(${PROJECT_NAME} ${SRC_FILES} ${RESOURCE_FILES})
+add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${COMMON_LIBS})
 

@@ -4,20 +4,13 @@
 #include "RenderSystem.hpp"
 
 
-class PlitaRoot {
+class PlitaRoot: public Singleton<PlitaRoot> {
 public:
-  static void initialize();
-  static WindowSystem& getWindow();
-
-private:
   PlitaRoot();
   ~PlitaRoot();
 
-  void initWindow();
-  void initRenderSystem();
-
-  static PlitaRoot instance_;
-  
+  void initialize();
+private:
   WindowSystem* window_system_;
   RenderSystem* render_system_;
 };

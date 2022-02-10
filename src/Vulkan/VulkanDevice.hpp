@@ -23,25 +23,27 @@ struct QueueFamilyIndices {
 
 class VulkanDevice {
 public:
-  VkInstance instance_;
-  VkDevice device_;
-  VkPhysicalDevice physical_device_;
-  VkSurfaceKHR surface_;
-  VkQueue graphics_queue_; //handle
-  VkQueue present_queue_; //handle
+  VkInstance vk_instance_;
+  VkDevice vk_device_;
+  VkPhysicalDevice vk_physical_device_;
+  VkSurfaceKHR vk_surface_;
+  VkQueue vk_graphics_queue_;
+  VkQueue vk_present_queue_;
   QueueFamilyIndices queue_indices_;
 
-  explicit VulkanDevice(VkInstance& instance);
+  explicit VulkanDevice(VkInstance& instance, const VkSurfaceKHR& surface);
   ~VulkanDevice();
-
-  static VkInstance createInstance();
 
   void createDevice();
   void setDeviceExtensions(std::vector<const char *>& extensions);
-  void setSurface(const VkSurfaceKHR& surface);
 
+  static VkInstance createVkInstance();
   /** @find graphics and present queue family indices*/
   static QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice& device, const VkSurfaceKHR& surface);
+
+  /*TODO: переделать*/
+  static const std::vector<const char*> validationLayers;
+  static bool checkValidationLayerSupport();
 
 private:
   /*Список требуемых расширений*/

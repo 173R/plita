@@ -2,6 +2,9 @@
 
 #include <stdexcept>
 
+template<>
+WindowSystem* Singleton<WindowSystem>::instance_ = nullptr;
+
 WindowSystem::WindowSystem(): 
   width_(0),
   height_(0), 
@@ -15,7 +18,7 @@ WindowSystem::~WindowSystem() {
   glfwTerminate();
 }
 
-void WindowSystem::init(const std::string title, const uint16_t width, const uint16_t height) {
+void WindowSystem::init(const std::string& title, uint16_t width, uint16_t height) {
   glfwInit();
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);

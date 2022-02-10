@@ -1,21 +1,33 @@
 #include "VulkanDevice.hpp"
 
-VulkanDevice::VulkanDevice(VkInstance& instance) :
-  instance_(instance),
-  physical_device_(VK_NULL_HANDLE),
-  device_(VK_NULL_HANDLE),
-  surface_(VK_NULL_HANDLE),
-  graphics_queue_(VK_NULL_HANDLE),
-  present_queue_(VK_NULL_HANDLE)
+#include "iostream"
+
+/*TODO: перенести*/
+const std::vector<const char*> VulkanDevice::validationLayers = {
+  "VK_LAYER_KHRONOS_validation"
+};
+
+VulkanDevice::VulkanDevice(VkInstance& instance, const VkSurfaceKHR& surface) :
+  vk_instance_(instance),
+  vk_physical_device_(VK_NULL_HANDLE),
+  vk_device_(VK_NULL_HANDLE),
+  vk_surface_(surface),
+  vk_graphics_queue_(VK_NULL_HANDLE),
+  vk_present_queue_(VK_NULL_HANDLE)
 {
     
 }
 
 VulkanDevice::~VulkanDevice() {
-  vkDestroyDevice(device_, nullptr);
+  vkDestroyDevice(vk_device_, nullptr);
 }
 
-VkInstance VulkanDevice::createInstance() {
+VkInstance VulkanDevice::createVkInstance() {
+
+  if (!checkValidationLayerSupport()) {
+    throw std::runtime_error("validation layers requested, but not available!");
+  }
+
   VkApplicationInfo app_info{};
   app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   app_info.pApplicationName = "Plita";
@@ -34,7 +46,8 @@ VkInstance VulkanDevice::createInstance() {
   create_info.pApplicationInfo = &app_info;
   create_info.enabledExtensionCount = glfw_extension_count;
   create_info.ppEnabledExtensionNames = glfw_extensions;
-  create_info.enabledLayerCount = 0;
+  create_info.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+  create_info.ppEnabledLayerNames = validationLayers.data();
 
   VkInstance instance;
   /*TODO: Обработать ошибку создания*/
@@ -48,30 +61,33 @@ VkInstance VulkanDevice::createInstance() {
 void VulkanDevice::selectPhysicalDevice() {
   uint32_t device_count = 0;
 
-  vkEnumeratePhysicalDevices(instance_, &device_count, nullptr);
+  vkEnumeratePhysicalDevices(vk_instance_, &device_count, nullptr);
 
   if (device_count == 0) {
     throw std::runtime_error("failed to find GPUs with Vulkan support!");
   }
 
   std::vector<VkPhysicalDevice> devices(device_count);
-  vkEnumeratePhysicalDevices(instance_, &device_count, devices.data());
+  vkEnumeratePhysicalDevices(vk_instance_, &device_count, devices.data());
 
   for (const VkPhysicalDevice& device : devices) {
     if (isSuitableDevice(device)) {
-      physical_device_ = device;
+      vk_physical_device_ = device;
+      VkPhysicalDeviceProperties device_properties;
+      vkGetPhysicalDeviceProperties(device, &device_properties);
+      std::cout << device_properties.deviceName << std::endl;
       break;
     }
   }
 
-  if (physical_device_ == VK_NULL_HANDLE) {
+  if (vk_physical_device_ == VK_NULL_HANDLE) {
     throw std::runtime_error("failed to find a suitable GPU!");
   }
 }
 
 bool VulkanDevice::isSuitableDevice(const VkPhysicalDevice& device) {
-  QueueFamilyIndices indices = findQueueFamilies(device, surface_);
-  VulkanSwapChain::SwapChainSupportDetails details = VulkanSwapChain::findSwapChainSupportDetails(device, surface_);
+  QueueFamilyIndices indices = findQueueFamilies(device, vk_surface_);
+  VulkanSwapChain::SwapChainSupportDetails details = VulkanSwapChain::findSwapChainSupportDetails(device, vk_surface_);
 
   VkPhysicalDeviceProperties device_properties;
   vkGetPhysicalDeviceProperties(device, &device_properties);
@@ -79,8 +95,8 @@ bool VulkanDevice::isSuitableDevice(const VkPhysicalDevice& device) {
   return device_properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU
     && indices.isComplete()
     && checkDeviceExtensionSupport(device)
-    && !details.formats.empty()
-    && !details.present_modes.empty();
+    && !details.vk_formats.empty()
+    && !details.vk_present_modes.empty();
 }
 
 bool VulkanDevice::checkDeviceExtensionSupport(const VkPhysicalDevice& device) {
@@ -105,7 +121,7 @@ void VulkanDevice::setDeviceExtensions(std::vector<const char *>& extensions) {
 void VulkanDevice::createDevice() {
   selectPhysicalDevice();
 
-  queue_indices_ = findQueueFamilies(physical_device_, surface_);
+  queue_indices_ = findQueueFamilies(vk_physical_device_, vk_surface_);
   float queue_priority = 1.0f;
 
   VkDeviceQueueCreateInfo queue_create_info{};
@@ -125,12 +141,12 @@ void VulkanDevice::createDevice() {
   create_info.enabledExtensionCount = static_cast<uint32_t>(device_extensions_.size());
   create_info.ppEnabledExtensionNames = device_extensions_.data();
 
-  if (vkCreateDevice(physical_device_, &create_info, nullptr, &device_) != VK_SUCCESS) {
+  if (vkCreateDevice(vk_physical_device_, &create_info, nullptr, &vk_device_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create logical device!");
   }
 
-  vkGetDeviceQueue(device_, queue_indices_.graphics_family.value(), 0, &graphics_queue_);
-  vkGetDeviceQueue(device_, queue_indices_.present_family.value(), 0, &present_queue_);
+  vkGetDeviceQueue(vk_device_, queue_indices_.graphics_family.value(), 0, &vk_graphics_queue_);
+  vkGetDeviceQueue(vk_device_, queue_indices_.present_family.value(), 0, &vk_present_queue_);
 }
 
 /*static*/ QueueFamilyIndices VulkanDevice::findQueueFamilies(const VkPhysicalDevice& device, const VkSurfaceKHR& surface) {
@@ -157,13 +173,35 @@ void VulkanDevice::createDevice() {
     }
   }
 
-  if (!indices.present_family.has_value()) {
+  if (!indices.isComplete()) {
     throw std::runtime_error("Present queue unsupported");
   }
 
   return indices;
 }
 
-void VulkanDevice::setSurface(const VkSurfaceKHR& surface) {
-  surface_ = surface;
+bool VulkanDevice::checkValidationLayerSupport() {
+
+  uint32_t layerCount;
+  vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+  std::vector<VkLayerProperties> availableLayers(layerCount);
+  vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+  for (const char* layerName : validationLayers) {
+    bool layerFound = false;
+
+    for (const auto& layerProperties : availableLayers) {
+      if (strcmp(layerName, layerProperties.layerName) == 0) {
+        layerFound = true;
+        break;
+      }
+    }
+
+    if (!layerFound) {
+      return false;
+    }
+  }
+
+  return true;
 }

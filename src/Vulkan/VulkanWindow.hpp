@@ -8,14 +8,12 @@
 
 class VulkanWindow {
 public:
-  VulkanWindow();
+  VulkanWindow(const VkInstance& vk_instance, WindowSystem* window_system);
   ~VulkanWindow();
 
   void createSurface();
-  void setInstance(const VkInstance& vk_instance);
-  void setWindow(WindowSystem* window_system);
 
-  VkSurfaceKHR surface_;
+  VkSurfaceKHR vk_surface_;
 private:
   VkInstance vk_instance_;
   WindowSystem* window_system_;
