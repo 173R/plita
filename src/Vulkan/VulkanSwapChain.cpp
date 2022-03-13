@@ -85,12 +85,12 @@ VkExtent2D VulkanSwapChain::selectExtent(const VkSurfaceCapabilitiesKHR &capabil
 }
 
 void VulkanSwapChain::createSwapChain() {
+  uint32_t graphics_family_index = device_->queue_indices_.graphics_family.value();
+  uint32_t present_family_index = device_->queue_indices_.present_family.value();
+
+  uint32_t queue_family_indices[] = {graphics_family_index, present_family_index};
 
   SwapChainSupportDetails details = findSwapChainSupportDetails(device_->vk_physical_device_, vk_surface_);
-
-  QueueFamilyIndices indices = VulkanDevice::findQueueFamilies(device_->vk_physical_device_, vk_surface_);
-  uint32_t queue_family_indices[] = {indices.graphics_family.value(), indices.present_family.value()};
-
   VkSurfaceFormatKHR surface_format = selectSurfaceFormat(details.vk_formats);
   vk_image_format_ = surface_format.format;
   VkPresentModeKHR present_mode = selectPresentMode(details.vk_present_modes);
@@ -111,7 +111,7 @@ void VulkanSwapChain::createSwapChain() {
   create_info.imageExtent = vk_image_extent_;
   create_info.imageArrayLayers = 1;
   create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-  if (indices.graphics_family != indices.present_family) {
+  if (graphics_family_index != present_family_index) {
     create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
     create_info.queueFamilyIndexCount = 2;
     create_info.pQueueFamilyIndices = queue_family_indices;
@@ -156,7 +156,6 @@ void VulkanSwapChain::createImageViews() {
     if (vkCreateImageView(device_->vk_device_, &create_info, nullptr, &vk_image_views_[i]) != VK_SUCCESS) {
       throw std::runtime_error("failed to create image views!");
     }
-
   }
 }
 

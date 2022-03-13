@@ -33,7 +33,7 @@ set(SRC_FILES
   src/Vulkan/VulkanWindow.cpp
   src/Vulkan/VulkanSwapChain.cpp
   src/Vulkan/VulkanGraphicsPipeline.cpp
-        include/Singleton.hpp)
+        include/Singleton.hpp src/Vulkan/VulkanCommandPool.cpp src/Vulkan/VulkanCommandPool.hpp)
 
 
 add_executable(${PROJECT_NAME} ${SRC_FILES})

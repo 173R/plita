@@ -11,22 +11,20 @@
 #include <string>
 #include <set>
 
-struct QueueFamilyIndices {
-  std::optional<uint32_t> graphics_family;
-  std::optional<uint32_t> present_family;
-
-  bool isComplete() const {
-    return graphics_family.has_value() && present_family.has_value();
-  }
-};
-
 
 class VulkanDevice {
 public:
-  VkInstance vk_instance_;
+  struct QueueFamilyIndices {
+    std::optional<uint32_t> graphics_family;
+    std::optional<uint32_t> present_family;
+
+    bool isComplete() const {
+      return graphics_family.has_value() && present_family.has_value();
+    }
+  };
+
   VkDevice vk_device_;
   VkPhysicalDevice vk_physical_device_;
-  VkSurfaceKHR vk_surface_;
   VkQueue vk_graphics_queue_;
   VkQueue vk_present_queue_;
   QueueFamilyIndices queue_indices_;
@@ -38,8 +36,6 @@ public:
   void setDeviceExtensions(std::vector<const char *>& extensions);
 
   static VkInstance createVkInstance();
-  /** @find graphics and present queue family indices*/
-  static QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice& device, const VkSurfaceKHR& surface);
 
   /*TODO: переделать*/
   static const std::vector<const char*> validationLayers;
@@ -48,11 +44,14 @@ public:
 private:
   /*Список требуемых расширений*/
   std::vector<const char*> device_extensions_;
+  VkSurfaceKHR vk_surface_;
+  VkInstance vk_instance_;
 
   void selectPhysicalDevice();
   /*Проверка нужных параметров у GPU*/
   bool isSuitableDevice(const VkPhysicalDevice& device);
   /*Проверка, поддреживает ли GPU конкретные расширения*/
   bool checkDeviceExtensionSupport(const VkPhysicalDevice& device);
+  QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice& device);
 
 };

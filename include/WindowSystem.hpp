@@ -13,13 +13,15 @@ public:
   const uint16_t width_;
   const std::string title_;
   GLFWwindow* window_;
+  static bool window_resized_;
 
   WindowSystem();
   ~WindowSystem();
 
   void init(const std::string& title, uint16_t width, uint16_t height);
-  void pollEvents();
-  bool shouldClose();
+  void pollEvents() const;
+  bool shouldClose() const;
 
 private:
+  static void windowSizeCallback(GLFWwindow* window, int width, int height);
 };

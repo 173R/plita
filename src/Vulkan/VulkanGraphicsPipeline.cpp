@@ -6,22 +6,12 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(VulkanDevice* device, VulkanSwapC
   vk_render_pass_(VK_NULL_HANDLE),
   vk_pipeline_layout_(VK_NULL_HANDLE),
   device_(device),
-  swap_chain_(swap_chain),
-  vk_command_pool_(VK_NULL_HANDLE),
-  vk_image_available_semaphore_(VK_NULL_HANDLE),
-  vk_render_finished_semaphore_(VK_NULL_HANDLE)
+  swap_chain_(swap_chain)
 {
 
 }
 
 VulkanGraphicsPipeline::~VulkanGraphicsPipeline() {
-  vkDeviceWaitIdle(device_->vk_device_);
-  vkDestroySemaphore(device_->vk_device_, vk_render_finished_semaphore_, nullptr);
-  vkDestroySemaphore(device_->vk_device_, vk_image_available_semaphore_, nullptr);
-  vkDestroyCommandPool(device_->vk_device_, vk_command_pool_, nullptr);
-  for (auto framebuffer : vk_framebuffers_) {
-    vkDestroyFramebuffer(device_->vk_device_, framebuffer, nullptr);
-  }
   vkDestroyPipeline(device_->vk_device_, vk_graphics_pipeline_, nullptr);
   vkDestroyPipelineLayout(device_->vk_device_, vk_pipeline_layout_, nullptr);
   vkDestroyRenderPass(device_->vk_device_, vk_render_pass_, nullptr);
@@ -49,8 +39,6 @@ void VulkanGraphicsPipeline::createPipeline() {
 
   std::vector<char> vert_shader_code = readFile("C:/C++WorkSpace/plita/src/shaders/vert.spv");
   std::vector<char> frag_shader_code = readFile("C:/C++WorkSpace/plita/src/shaders/frag.spv");
-
-  std::cout << vert_shader_code.size() << "\n" << frag_shader_code.size() << "\n";
 
   VkShaderModule vert_shader_module = createShaderModule(vert_shader_code);
   VkShaderModule frag_shader_module = createShaderModule(frag_shader_code);
@@ -172,12 +160,6 @@ void VulkanGraphicsPipeline::createPipeline() {
 
   vkDestroyShaderModule(device_->vk_device_, vert_shader_module, nullptr);
   vkDestroyShaderModule(device_->vk_device_, frag_shader_module, nullptr);
-
-  /*TODO: Перенести*/
-  createFramebuffers();
-  createCommandPool();
-  createCommandBuffers();
-  createSemaphores();
 }
 
 VkShaderModule VulkanGraphicsPipeline::createShaderModule(const std::vector<char> &code) const {
@@ -237,92 +219,3 @@ void VulkanGraphicsPipeline::createRenderPass() {
   }
 }
 
-void VulkanGraphicsPipeline::createFramebuffers() {
-  vk_framebuffers_.resize(swap_chain_->vk_images_.size());
-
-  for (size_t i = 0; i < swap_chain_->vk_image_views_.size(); i++) {
-    VkImageView attachments[] = {
-      swap_chain_->vk_image_views_[i]
-    };
-
-    VkFramebufferCreateInfo framebuffer_info{};
-    framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    framebuffer_info.renderPass = vk_render_pass_;
-    framebuffer_info.attachmentCount = 1;
-    framebuffer_info.pAttachments = attachments;
-    framebuffer_info.width = swap_chain_->vk_image_extent_.width;
-    framebuffer_info.height = swap_chain_->vk_image_extent_.height;
-    framebuffer_info.layers = 1;
-
-    if (vkCreateFramebuffer(device_->vk_device_, &framebuffer_info, nullptr, &vk_framebuffers_[i]) != VK_SUCCESS) {
-      throw std::runtime_error("failed to create framebuffer!");
-    }
-  }
-}
-
-void VulkanGraphicsPipeline::createCommandPool() {
-  VkCommandPoolCreateInfo pool_info{};
-  pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-  pool_info.queueFamilyIndex = device_->queue_indices_.graphics_family.value();
-
-  if (vkCreateCommandPool(device_->vk_device_, &pool_info, nullptr, &vk_command_pool_) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create command pool!");
-  }
-}
-
-void VulkanGraphicsPipeline::createCommandBuffers() {
-  vk_command_buffers_.resize(vk_framebuffers_.size());
-
-  VkCommandBufferAllocateInfo alloc_info{};
-  alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-  alloc_info.commandPool = vk_command_pool_;
-  alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-  alloc_info.commandBufferCount = static_cast<uint32_t>(vk_command_buffers_.size());
-
-  if (vkAllocateCommandBuffers(device_->vk_device_, &alloc_info, vk_command_buffers_.data()) != VK_SUCCESS) {
-    throw std::runtime_error("failed to allocate command buffers!");
-  }
-
-  for (size_t i = 0; i < vk_command_buffers_.size(); i++) {
-    VkCommandBufferBeginInfo begin_info{};
-    begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-    if (vkBeginCommandBuffer(vk_command_buffers_[i], &begin_info) != VK_SUCCESS) {
-      throw std::runtime_error("failed to begin recording command buffer!");
-    }
-
-    VkRenderPassBeginInfo render_pass_info{};
-    render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    render_pass_info.renderPass = vk_render_pass_;
-    render_pass_info.framebuffer = vk_framebuffers_[i];
-    render_pass_info.renderArea.offset = {0, 0};
-    render_pass_info.renderArea.extent = swap_chain_->vk_image_extent_;
-
-    VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
-    render_pass_info.clearValueCount = 1;
-    render_pass_info.pClearValues = &clearColor;
-
-    vkCmdBeginRenderPass(vk_command_buffers_[i], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
-
-    vkCmdBindPipeline(vk_command_buffers_[i], VK_PIPELINE_BIND_POINT_GRAPHICS, vk_graphics_pipeline_);
-
-    vkCmdDraw(vk_command_buffers_[i], 3, 1, 0, 0);
-
-    vkCmdEndRenderPass(vk_command_buffers_[i]);
-
-    if (vkEndCommandBuffer(vk_command_buffers_[i]) != VK_SUCCESS) {
-      throw std::runtime_error("failed to record command buffer!");
-    }
-  }
-}
-
-void VulkanGraphicsPipeline::createSemaphores() {
-  VkSemaphoreCreateInfo semaphoreInfo{};
-  semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-  if (vkCreateSemaphore(device_->vk_device_, &semaphoreInfo, nullptr, &vk_image_available_semaphore_) != VK_SUCCESS ||
-      vkCreateSemaphore(device_->vk_device_, &semaphoreInfo, nullptr, &vk_render_finished_semaphore_) != VK_SUCCESS) {
-
-    throw std::runtime_error("failed to create semaphores!");
-  }
-}
